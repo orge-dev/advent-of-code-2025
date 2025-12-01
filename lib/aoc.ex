@@ -34,24 +34,19 @@ defmodule Aoc do
     {new_position, new_zero_count}
   end
 
-  defp rotate_dial_1b(count, direction, start_position) do
-    click = fn _step, {position, zero_counts} ->
-      new_position =
-        case direction do
-          :right ->
-            new_pos = position + 1
-            if new_pos > 99, do: 0, else: new_pos
+  defp rotate_dial_1b(count, direction, position, zero_counts \\ 0)
 
-          :left ->
-            new_pos = position - 1
-            if new_pos < 0, do: 99, else: new_pos
-        end
+  defp rotate_dial_1b(0, _direction, position, zero_counts), do: {position, zero_counts}
 
-      new_zero_counts = if new_position == 0, do: zero_counts + 1, else: zero_counts
-      {new_position, new_zero_counts}
+  defp rotate_dial_1b(count, direction, position, zero_counts) do
+    new_position = case direction do
+      :right -> if position + 1 > 99, do: 0, else: position + 1
+      :left -> if position - 1 < 0, do: 99, else: position - 1
     end
 
-    Enum.reduce(1..count, {start_position, 0}, click)
+    new_zero_counts = if new_position == 0, do: zero_counts + 1, else: zero_counts
+
+    rotate_dial_1b(count - 1, direction, new_position, new_zero_counts)
   end
 
   defp update_position_1b({direction, distance}, {position, zero_count}) do
