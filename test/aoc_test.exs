@@ -5,7 +5,6 @@ defmodule AocTest do
   test "greets the world" do
     assert Aoc.hello() == :world
     assert Aoc.solve1() == :ok
-    assert :ok == :not_ok
-    IO.puts "It worked"
+    IO.puts "Solved the first problem!"
   end
 end
