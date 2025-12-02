@@ -39,10 +39,11 @@ defmodule Aoc do
   defp rotate_dial_1b(0, _direction, position, zero_counts), do: {position, zero_counts}
 
   defp rotate_dial_1b(count, direction, position, zero_counts) do
-    new_position = case direction do
-      :right -> if position + 1 > 99, do: 0, else: position + 1
-      :left -> if position - 1 < 0, do: 99, else: position - 1
-    end
+    new_position =
+      case direction do
+        :right -> if position + 1 > 99, do: 0, else: position + 1
+        :left -> if position - 1 < 0, do: 99, else: position - 1
+      end
 
     new_zero_counts = if new_position == 0, do: zero_counts + 1, else: zero_counts
 
@@ -76,6 +77,36 @@ defmodule Aoc do
     |> Stream.map(&String.trim/1)
     |> Stream.map(&parse/1)
     |> Enum.reduce({initial_dial_position, initial_zero_counts}, &update_position_1b/2)
+    |> dbg
+
+    :ok
+  end
+
+  defp invalid2 str do
+    len = div(String.length(str), 2)
+    firsthalf = String.slice(str, 0, len)
+    secndhalf = String.slice(str, len, len)
+    firsthalf == secndhalf
+  end
+
+  defp val2 x do
+    str = Integer.to_string(x)
+    even_length = rem(String.length(str), 2) == 0
+    if even_length and invalid2(str), do: x, else: 0
+  end
+
+  def solve2 do
+    {:ok, content} = File.read("priv/inputs/input2.txt")
+
+    range_strs = String.split(String.trim(content), ",")
+
+    for rng_str <- range_strs do
+	[start, stop] = Enum.map(String.split(rng_str, "-"), &String.to_integer/1)
+	start..stop
+	  |> Enum.map(&val2/1)
+	  |> Enum.reduce(fn x, acc -> x + acc end)
+    end
+    |> Enum.reduce(fn x, acc -> x + acc end)
     |> dbg
 
     :ok
