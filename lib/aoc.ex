@@ -111,4 +111,40 @@ defmodule Aoc do
 
     :ok
   end
+
+  defp candidate_sublengths_2b len do
+    Enum.filter(1..len, fn x -> rem(len, x) == 0 and x < len end)
+  end
+
+  defp val2b x do
+    str = Integer.to_string(x)
+    len = String.length(str)
+
+    candidate_sublens = candidate_sublengths_2b len
+
+    invalid_str_of_sublen = fn sublen ->
+      substr = String.slice(str, 0, sublen)
+      String.duplicate(substr, div(len, sublen)) == str
+    end
+
+    match = Enum.any?(candidate_sublens, invalid_str_of_sublen)
+    if match, do: x, else: 0
+  end
+
+  def solve2b do
+    {:ok, content} = File.read("priv/inputs/input2.txt")
+
+    range_strs = String.split(String.trim(content), ",")
+
+    for rng_str <- range_strs do
+	[start, stop] = Enum.map(String.split(rng_str, "-"), &String.to_integer/1)
+	start..stop
+	  |> Enum.map(&val2b/1)
+	  |> Enum.reduce(fn x, acc -> x + acc end)
+    end
+    |> Enum.reduce(fn x, acc -> x + acc end)
+    |> dbg
+
+    :ok
+  end
 end
