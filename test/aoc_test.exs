@@ -16,7 +16,7 @@ defmodule AocTest do
 
     assert Aoc.solve3() == :ok
     IO.puts("Solved the third problem (part 1)!")
-    # assert Aoc.solve3b() == :ok
-    # IO.puts("Solved the third problem (part 2)!")
+    assert Aoc.solve3b() == :ok
+    IO.puts("Solved the third problem (part 2)!")
   end
 end

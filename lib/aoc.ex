@@ -182,4 +182,38 @@ defmodule Aoc do
 
     :ok
   end
+
+  defp m3(str) do
+    String.graphemes(str)
+    |> Enum.with_index()
+    |> Enum.reduce({0, -1}, &red3/2)
+  end
+
+  def s3(_str, res_str, 0) do
+    res_str
+  end
+
+  def s3(str, res_str, digit) do
+    substr = String.slice(str, 0, String.length(str) - digit + 1)
+
+    {max, max_idx} = m3(substr)
+
+    new_str = String.slice(str, max_idx + 1, String.length(str))
+
+    s3(new_str, res_str <> to_string(max), digit - 1)
+  end
+
+  def find3b(line) do
+    String.to_integer(s3(line, "", 12))
+  end
+
+  def solve3b do
+    File.stream!("priv/inputs/input3.txt")
+    |> Stream.map(&String.trim/1)
+    |> Enum.map(&find3b/1)
+    |> Enum.sum()
+    |> dbg
+
+    :ok
+  end
 end
