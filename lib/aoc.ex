@@ -82,14 +82,14 @@ defmodule Aoc do
     :ok
   end
 
-  defp invalid2 str do
+  defp invalid2(str) do
     len = div(String.length(str), 2)
     firsthalf = String.slice(str, 0, len)
     secndhalf = String.slice(str, len, len)
     firsthalf == secndhalf
   end
 
-  defp val2 x do
+  defp val2(x) do
     str = Integer.to_string(x)
     even_length = rem(String.length(str), 2) == 0
     if even_length and invalid2(str), do: x, else: 0
@@ -101,10 +101,11 @@ defmodule Aoc do
     range_strs = String.split(String.trim(content), ",")
 
     for rng_str <- range_strs do
-	[start, stop] = Enum.map(String.split(rng_str, "-"), &String.to_integer/1)
-	start..stop
-	  |> Enum.map(&val2/1)
-	  |> Enum.reduce(fn x, acc -> x + acc end)
+      [start, stop] = Enum.map(String.split(rng_str, "-"), &String.to_integer/1)
+
+      start..stop
+      |> Enum.map(&val2/1)
+      |> Enum.reduce(fn x, acc -> x + acc end)
     end
     |> Enum.reduce(fn x, acc -> x + acc end)
     |> dbg
@@ -112,15 +113,15 @@ defmodule Aoc do
     :ok
   end
 
-  defp candidate_sublengths_2b len do
+  defp candidate_sublengths_2b(len) do
     Enum.filter(1..len, fn x -> rem(len, x) == 0 and x < len end)
   end
 
-  defp val2b x do
+  defp val2b(x) do
     str = Integer.to_string(x)
     len = String.length(str)
 
-    candidate_sublens = candidate_sublengths_2b len
+    candidate_sublens = candidate_sublengths_2b(len)
 
     invalid_str_of_sublen = fn sublen ->
       substr = String.slice(str, 0, sublen)
@@ -137,12 +138,46 @@ defmodule Aoc do
     range_strs = String.split(String.trim(content), ",")
 
     for rng_str <- range_strs do
-	[start, stop] = Enum.map(String.split(rng_str, "-"), &String.to_integer/1)
-	start..stop
-	  |> Enum.map(&val2b/1)
-	  |> Enum.reduce(fn x, acc -> x + acc end)
+      [start, stop] = Enum.map(String.split(rng_str, "-"), &String.to_integer/1)
+
+      start..stop
+      |> Enum.map(&val2b/1)
+      |> Enum.reduce(fn x, acc -> x + acc end)
     end
     |> Enum.reduce(fn x, acc -> x + acc end)
+    |> dbg
+
+    :ok
+  end
+
+  def red3({num_str, idx}, {best_num, best_idx}) do
+    num = String.to_integer(num_str)
+    if num > best_num, do: {num, idx}, else: {best_num, best_idx}
+  end
+
+  def find3(line) do
+    substr = String.slice(line, 0, String.length(line) - 1)
+
+    {max, max_idx} =
+      String.graphemes(substr)
+      |> Enum.with_index()
+      |> Enum.reduce({0, -1}, &red3/2)
+
+    substr2 = String.slice(line, max_idx + 1, String.length(line))
+
+    {max2, _max_idx2} =
+      String.graphemes(substr2)
+      |> Enum.with_index()
+      |> Enum.reduce({0, -1}, &red3/2)
+
+    String.to_integer(to_string(max) <> to_string(max2))
+  end
+
+  def solve3 do
+    File.stream!("priv/inputs/input3.txt")
+    |> Stream.map(&String.trim/1)
+    |> Enum.map(&find3/1)
+    |> Enum.sum()
     |> dbg
 
     :ok
