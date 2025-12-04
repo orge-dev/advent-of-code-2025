@@ -249,4 +249,25 @@ defmodule Aoc do
 
     :ok
   end
+
+  def rem4b(all, count \\ 0) do
+    map = MapSet.new(all)
+    removed = Enum.filter(all, fn {r, c} -> get4(map, {r, c}) == 1 end)
+    remove_cnt = Kernel.length(removed)
+    new = MapSet.difference(map, MapSet.new(removed))
+    if remove_cnt == 0, do: count, else: rem4b(new, count + remove_cnt)
+  end
+
+  def solve4b do
+    roll_locations =
+      File.stream!("priv/inputs/input4.txt")
+      |> Stream.map(&String.trim/1)
+      |> Enum.with_index()
+      |> Enum.map(&count4/1)
+      |> List.flatten()
+
+    dbg rem4b(roll_locations)
+
+    :ok
+  end
 end
