@@ -216,4 +216,37 @@ defmodule Aoc do
 
     :ok
   end
+
+  def count4({line, idx}) do
+    for {char, char_idx} <- Enum.with_index(String.graphemes(line)),
+        char == "@",
+        do: {idx, char_idx}
+  end
+
+  def get4(all, {row, col}) do
+    neigh_diffs = [{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}]
+    neigh_locs = for {diff_r, diff_col} <- neigh_diffs, do: {row + diff_r, col + diff_col}
+
+    neighbors =
+      neigh_locs
+      |> Enum.map(&if MapSet.member?(all, &1), do: 1, else: 0)
+      |> Enum.sum()
+
+    if neighbors < 4, do: 1, else: 0
+  end
+
+  def solve4 do
+    roll_locations =
+      File.stream!("priv/inputs/input4.txt")
+      |> Stream.map(&String.trim/1)
+      |> Enum.with_index()
+      |> Enum.map(&count4/1)
+      |> List.flatten()
+
+    map = MapSet.new(roll_locations)
+
+    dbg(Enum.sum(Enum.map(roll_locations, &get4(map, &1))))
+
+    :ok
+  end
 end
