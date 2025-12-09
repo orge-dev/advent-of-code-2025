@@ -270,4 +270,41 @@ defmodule Aoc do
 
     :ok
   end
+
+  defp parse_rng5(line) do
+    [start, stop] = String.split(line, "-") |> Enum.map(&String.to_integer/1)
+    {start, stop}
+  end
+
+  def parse5(line, acc) when line == "" do
+    acc
+  end
+
+  def parse5(line, {ranges, available}) when line != "" do
+    if String.contains?(line, "-") do
+      new_rng = parse_rng5(line)
+      {MapSet.put(ranges, new_rng), available}
+    else
+      new_avail = String.to_integer(line)
+      {ranges, MapSet.put(available, new_avail)}
+    end
+  end
+
+  defp fresh5(x, acc, ranges) do
+    match = Enum.any?(ranges, fn {rng_st, rng_ed} -> x >= rng_st and x <= rng_ed end)
+    if match, do: acc + 1, else: acc
+  end
+
+  def solve5 do
+    {ranges, available} =
+      File.stream!("priv/inputs/input5.txt")
+      |> Stream.map(&String.trim/1)
+      |> Enum.reduce({MapSet.new(), MapSet.new()}, &parse5/2)
+
+    available
+    |> Enum.reduce(0, fn x, acc -> fresh5(x, acc, ranges) end)
+    |> dbg
+
+    :ok
+  end
 end
