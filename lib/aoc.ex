@@ -307,4 +307,45 @@ defmodule Aoc do
 
     :ok
   end
+
+  def resolve5b([], {rng_st, rng_end}) do
+    [{rng_st, rng_end}]
+  end
+
+  def resolve5b(ordered_disjoint_intervals, {rng_st, rng_end}) do
+    {first_st, _first_end} = Enum.at(ordered_disjoint_intervals, 0)
+    {_last_st, last_end} = Enum.at(ordered_disjoint_intervals, -1)
+    [{min(first_st, rng_st), max(last_end, rng_end)}]
+  end
+
+  def merge5b(ordered_disjoint_intervals, {rng_st, rng_ed}) do
+    before_intervals = Enum.filter(ordered_disjoint_intervals, fn {_test_st, test_ed} -> test_ed < rng_st end)
+    after_intervals = Enum.filter(ordered_disjoint_intervals, fn {test_st, _test_ed} -> test_st > rng_ed end)
+    overlapping_intervals = Enum.filter(ordered_disjoint_intervals, fn {test_st, test_ed} -> test_ed >= rng_st and test_st <= rng_ed end)
+
+    overlapping_resolved = resolve5b(overlapping_intervals, {rng_st, rng_ed})
+   
+    before_intervals ++ overlapping_resolved ++ after_intervals
+  end
+
+  def red5b(x, acc) do
+    {rng_st, rng_ed} = x
+    ordered_disjoint_intervals = acc
+
+    merge5b(ordered_disjoint_intervals, {rng_st, rng_ed})
+  end
+
+  def solve5b do
+    {ranges, _avail} = File.stream!("priv/inputs/input5.txt")
+    |> Stream.map(&String.trim/1)
+    |> Enum.reduce({MapSet.new(), MapSet.new()}, &parse5/2)
+
+    initial_disjoint_intervals = []
+    final_disjoint_intervals = Enum.reduce(ranges, initial_disjoint_intervals, &red5b/2)
+
+    Enum.sum(for {st, ed} <- final_disjoint_intervals, do: ed - st + 1)
+
+    :ok
+  end
+
 end
